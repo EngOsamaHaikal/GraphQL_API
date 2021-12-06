@@ -1,0 +1,20 @@
+import jwt
+import users.models
+from datetime import datetime
+from graphql_jwt.settings import jwt_settings
+    
+def jwt_payload(user, context=None):
+    jwt_datetime = datetime.utcnow() + jwt_settings.JWT_EXPIRATION_DELTA
+    jwt_expires = int(jwt_datetime.timestamp())
+    payload = {}
+    payload['username'] = str(user.username) # For library compatibility
+    payload['id'] = str(user.id)
+    payload['sub_name1'] = user.first_name
+    payload['sub_name2'] = user.last_name
+    payload['email'] = user.email
+    payload['exp'] = jwt_expires
+    payload['https://hasura.io/jwt/claims'] = {}
+    payload['https://hasura.io/jwt/claims']['x-hasura-allowed-roles'] = [user.role]
+    payload['https://hasura.io/jwt/claims']['x-hasura-default-role'] = user.role
+    payload['https://hasura.io/jwt/claims']['x-hasura-user-id'] = str(user.id)
+    return payload
